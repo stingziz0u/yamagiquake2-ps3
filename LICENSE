@@ -1,3 +1,48 @@
+YamagiQuake2-PS3 is a port of Yamagi Quake II to the PlayStation 3. It is
+released under the terms of the GNU General Public License, version 2,
+like Yamagi Quake II and id Software's Quake II source release it is
+built on. The full text of the GPLv2 is included below.
+
+YamagiQuake2-PS3's own additions (src/backends/ps3/, ps3/ and the changes to
+a few of Yamagi Quake II's own source files) are:
+
+    Copyright (C) 2026 the Quake2PS3 contributors
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation; either version 2 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details.
+
+YamagiQuake2-PS3 also contains or uses:
+
+- ps3gl (src/backends/ps3/gl/): derived from the GL-to-RSX layer of
+  IoQuake3-PS3 (https://github.com/Mayo1970/IoQuake3-PS3), GPLv2.
+- The SDL2 compatibility headers (src/backends/ps3/compat/SDL2/): key
+  code tables from SDL, zlib license, notice kept in the files.
+- The 8x16 font of the error screen (src/backends/ps3/ps3_font.h):
+  generated from DejaVu Sans Mono Bold, Bitstream Vera license, included
+  at the end of this file.
+- The Reckoning (xatrix) and Ground Zero (rogue) game code: not part of
+  this repository. Fetched at build time from Yamagi Quake II's
+  repositories (https://github.com/yquake2/xatrix,
+  https://github.com/yquake2/rogue), GPLv2.
+- Zaero: its game code (https://github.com/yquake2/zaero) is under id
+  Software's Limited Program Source Code License, which is NOT compatible
+  with the GPL. It is not part of this repository nor of any build that
+  is distributed. The build system can link it only into a personal,
+  non-distributed build (ps3/Makefile, ZAERO=1).
+
+No Quake II game data (id Software's or the mission packs') is included.
+
+What follows is Yamagi Quake II's license file, unchanged.
+
+===============================================================================
+
 Yamagi Quake II contains software developed by multiple individuals,
 projects and organisations. Following is a list of this software and
 copys of each license:
@@ -633,3 +678,52 @@ Gyro source code (gyro.c, gyro.h):
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ===============================================================================
+
+===============================================================================
+
+DejaVu fonts (src/backends/ps3/ps3_font.h, bitmap generated from DejaVu
+Sans Mono Bold)
+
+Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera
+is a trademark of Bitstream, Inc. DejaVu changes are in public domain.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of the fonts accompanying this license ("Fonts") and associated
+documentation files (the "Font Software"), to reproduce and distribute the
+Font Software, including without limitation the rights to use, copy, merge,
+publish, distribute, and/or sell copies of the Font Software, and to permit
+persons to whom the Font Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright and trademark notices and this permission notice shall
+be included in all copies of one or more of the Font Software typefaces.
+
+The Font Software may be modified, altered, or added to, and in particular
+the designs of glyphs or characters in the Fonts may be modified and
+additional glyphs or characters may be added to the Fonts, only if the fonts
+are renamed to names not containing either the words "Bitstream" or the word
+"Vera".
+
+This License becomes null and void to the extent applicable to Fonts or Font
+Software that has been modified and is distributed under the "Bitstream
+Vera" names.
+
+The Font Software may be sold as part of a larger software package but no
+copy of one or more of the Font Software typefaces may be sold by itself.
+
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT,
+TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL BITSTREAM OR THE GNOME
+FOUNDATION BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING
+ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE
+FONT SOFTWARE.
+
+Except as contained in this notice, the names of Gnome, the Gnome
+Foundation, and Bitstream Inc., shall not be used in advertising or
+otherwise to promote the sale, use or other dealings in this Font Software
+without prior written authorization from the Gnome Foundation or Bitstream
+Inc., respectively. For further information, contact: fonts at gnome dot
+org.
