@@ -25,7 +25,7 @@
  * =======================================================================
  */
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__PS3__)
 #include <libgen.h>
 #endif
 
@@ -1623,7 +1623,11 @@ FS_GetNextRawPath(const char* lastRawPath)
 	return NULL;
 }
 
-#ifdef _MSC_VER // looks like MSVC/the Windows CRT doesn't have basename()
+#if defined(_MSC_VER) || defined(__PS3__) // looks like MSVC/the Windows CRT doesn't have basename()
+// (neither does PSL1GHT's newlib, although its headers may declare one)
+#ifdef __PS3__
+#define basename Q2_basename
+#endif
 // returns the last part of the given pathname, after last (back)slash
 // if the last character is a (back)slash, it's removed (set to '\0')
 static char* basename( char* n )
@@ -1640,7 +1644,7 @@ static char* basename( char* n )
 		return (r2 == NULL || r1 > r2) ? (r1 + 1) : (r2 + 1);
 	return (r2 != NULL) ? (r2 + 1) : n;
 }
-#endif // _MSC_VER
+#endif // _MSC_VER || __PS3__
 
 static void
 FS_AddDirToSearchPath(char *dir, qboolean create)
@@ -2055,6 +2059,29 @@ FS_BuildRawPath(void)
 	if (fs_cddir->string[0] != '\0') {
 		FS_AddDirToRawPath(fs_cddir->string, false, true);
 	}
+
+#ifdef __PS3__
+	// Quake2PS3: USRDIR/mods is one more place for mod directories
+	// (USRDIR/mods/zaero, ...), next to the official ones in USRDIR.
+	// Linked in second: the head of the list (datadir, see
+	// FS_BuildGameSpecificSearchPath) and its tail (homedir, where
+	// fs_gamedir ends up) keep their roles.
+	{
+		char mods[MAX_OSPATH];
+
+		Com_sprintf(mods, sizeof(mods), "%s/mods", datadir);
+
+		if (fs_rawPath && Sys_IsDir(mods))
+		{
+			fsRawPath_t *m = Z_Malloc(sizeof(fsRawPath_t));
+
+			Q_strlcpy(m->path, mods, sizeof(m->path));
+			m->create = false;
+			m->next = fs_rawPath->next;
+			fs_rawPath->next = m;
+		}
+	}
+#endif
 }
 
 // --------

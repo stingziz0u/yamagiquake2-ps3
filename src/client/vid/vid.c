@@ -329,9 +329,20 @@ VID_GetRendererLibPath(const char *renderer, char *path, size_t len)
 /*
  * Checks if a renderer DLL is available.
  */
+#ifdef __PS3__
+// No shared libraries on the PS3: the renderers are linked in, with their
+// GetRefAPI renamed (see ps3/Makefile). gl1 draws with the RSX (through
+// src/backends/ps3/gl), soft with the CPU.
+refexport_t GetRefAPI_soft(refimport_t imp);
+refexport_t GetRefAPI_gl1(refimport_t imp);
+#endif
+
 qboolean
 VID_HasRenderer(const char *renderer)
 {
+#ifdef __PS3__
+	return (strcmp(renderer, "soft") == 0) || (strcmp(renderer, "gl1") == 0);
+#endif
 	char reflib_path[MAX_OSPATH] = {0};
 	VID_GetRendererLibPath(renderer, reflib_path, sizeof(reflib_path));
 
@@ -420,7 +431,12 @@ VID_LoadRenderer(void)
 	}
 
 	// Mkay, let's load the requested renderer.
+#ifdef __PS3__
+	GetRefAPI = (strcmp(vid_renderer->string, "gl1") == 0) ? GetRefAPI_gl1 : GetRefAPI_soft;
+	reflib_handle = NULL;
+#else
 	GetRefAPI = (GetRefAPI_t)Sys_LoadLibrary(reflib_path, "GetRefAPI", &reflib_handle);
+#endif
 
 	// Okay, we couldn't load it. It's up to the
 	// caller to recover from this.
@@ -595,7 +611,11 @@ VID_Init(void)
 	// Console variables
 	vid_gamma = Cvar_Get("vid_gamma", "1.0", CVAR_ARCHIVE);
 	vid_fullscreen = Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
+#ifdef __PS3__
+	vid_renderer = Cvar_Get("vid_renderer", "gl1", CVAR_ARCHIVE);
+#else
 	vid_renderer = Cvar_Get("vid_renderer", "gl3", CVAR_ARCHIVE);
+#endif
 
 	// Commands
 	Cmd_AddCommand("vid_restart", VID_Restart_f);

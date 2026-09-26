@@ -117,6 +117,20 @@ R_PrintDSpeeds (void)
 	de_time = (de_time2 - de_time1);
 	ms = (r_time2 - r_time1);
 
+#ifdef __PS3__
+	/* On the PS3 the times are in microseconds (SDL_GetTicks is renamed
+	   to a microsecond clock for this renderer, see ps3/Makefile) and go
+	   to the log as averages every 10 seconds instead of one console
+	   line per frame. */
+	{
+		extern void PS3_ProfileRender(int total, int world, int bmodels,
+				int edges, int entities, int particles);
+
+		PS3_ProfileRender(ms, rw_time, db_time, se_time, de_time, dp_time);
+		return;
+	}
+#endif
+
 	Com_Printf("%3i %2ip %2iw %2ib %2is %2ie %2ia\n",
 				ms, dp_time, rw_time, db_time, se_time, de_time, da_time);
 }

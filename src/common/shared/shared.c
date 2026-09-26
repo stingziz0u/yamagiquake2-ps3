@@ -1483,8 +1483,18 @@ FILE *Q_fopen(const char *file, const char *mode)
 #else
 #include <sys/stat.h>
 #include <errno.h>
+#ifdef __PS3__
+// PSL1GHT has no chdir() and its fopen() only takes absolute paths.
+// The PS3 backend emulates the working directory (sv_save.c changes
+// into save/current and opens "base1.sav"), so resolve against it.
+#include "../../backends/ps3/ps3_platform.h"
+#endif
 FILE *Q_fopen(const char *file, const char *mode)
 {
+#ifdef __PS3__
+	char absfile[MAX_OSPATH];
+	file = PS3_AbsPath(file, absfile, sizeof(absfile));
+#endif
 	// make sure it's a regular file and not a directory or sth, see #394
 	struct stat statbuf;
 	int statret = stat(file, &statbuf);

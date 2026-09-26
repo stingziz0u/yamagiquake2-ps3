@@ -2820,6 +2820,86 @@ static const joy_preset_t joy_presets[] = {
 	[8] = { 720.0f, 720.0f,   0.0f,   0.0f, 0.00f },
 };
 
+#ifdef __PS3__
+/*
+ * PS3: "look sensitivity" is a continuous scale from 0.5 to 8 in steps of
+ * 0.5, instead of the 9 presets above (0 = no look at all, and from 4 on
+ * the DualShock 3's short sticks made it unplayable). 3 is upstream's
+ * default preset exactly; below it the speeds shrink in proportion, above
+ * it they grow gently (8 = twice the default).
+ */
+#define PS3_JOY_SENS_MIN  0.5f
+#define PS3_JOY_SENS_MAX  8.0f
+#define PS3_JOY_SENS_STEP 0.5f
+
+static float
+PS3_JoySensScale(float s)
+{
+	return (s <= 3.0f) ? s / 3.0f : 1.0f + (s - 3.0f) * 0.2f;
+}
+
+static void
+PS3_JoySensValues(float s, joy_preset_t *out)
+{
+	const joy_preset_t *def = &joy_presets[3];
+	const float m = PS3_JoySensScale(s);
+
+	/* rounded to whole units so they can be matched back */
+	out->yawspeed = roundf(def->yawspeed * m);
+	out->pitchspeed = roundf(def->pitchspeed * m);
+	out->extra_yawspeed = roundf(def->extra_yawspeed * m);
+	out->extra_pitchspeed = roundf(def->extra_pitchspeed * m);
+	out->ramp_time = def->ramp_time;
+}
+
+void
+IN_ApplyJoyPreset(void)
+{
+	joy_preset_t p;
+	float s = Q_clamp(joy_sensitivity->value, PS3_JOY_SENS_MIN, PS3_JOY_SENS_MAX);
+
+	/* snap to the menu's steps */
+	s = roundf(s / PS3_JOY_SENS_STEP) * PS3_JOY_SENS_STEP;
+
+	joy_sensitivity->modified = false;
+	if (first_init) return;
+
+	PS3_JoySensValues(s, &p);
+
+	Cvar_SetValue("joy_yawspeed", p.yawspeed);
+	Cvar_SetValue("joy_pitchspeed", p.pitchspeed * Q_signf(joy_pitchspeed->value));
+	Cvar_SetValue("joy_extra_yawspeed", p.extra_yawspeed);
+	Cvar_SetValue("joy_extra_pitchspeed", p.extra_pitchspeed);
+	Cvar_SetValue("joy_ramp_time", p.ramp_time);
+}
+
+#define EQF(a, b) (fabsf((a) - (b)) < 1.0e-3f)
+qboolean
+IN_MatchJoyPreset(void)
+{
+	float s;
+
+	for (s = PS3_JOY_SENS_MIN; s <= PS3_JOY_SENS_MAX + 0.01f; s += PS3_JOY_SENS_STEP)
+	{
+		joy_preset_t p;
+
+		PS3_JoySensValues(s, &p);
+
+		if (EQF(p.yawspeed, joy_yawspeed->value)
+			&& EQF(p.pitchspeed, fabsf(joy_pitchspeed->value))
+			&& EQF(p.extra_yawspeed, joy_extra_yawspeed->value)
+			&& EQF(p.extra_pitchspeed, joy_extra_pitchspeed->value)
+			&& EQF(p.ramp_time, joy_ramp_time->value))
+		{
+			Cvar_SetValue("joy_sensitivity", s);
+			joy_sensitivity->modified = false;
+			return true;
+		}
+	}
+
+	return false;
+}
+#else
 void
 IN_ApplyJoyPreset(void)
 {
@@ -2859,6 +2939,7 @@ IN_MatchJoyPreset(void)
 
 	return false;
 }
+#endif /* __PS3__ */
 #undef EQF
 
 /*

@@ -1,0 +1,6 @@
+/* One texture, GL_MODULATE (or GL_COMBINE with scale 1): texture * color. */
+void main(float4 color : COLOR0, float2 tc0 : TEXCOORD0,
+          uniform sampler2D tex0, out float4 oColor : COLOR)
+{
+    oColor = color * tex2D(tex0, tc0);
+}

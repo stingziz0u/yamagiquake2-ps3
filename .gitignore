@@ -4,3 +4,8 @@
 *.mk
 *.user
 *.d
+
+# Quake2PS3: patches and their leftovers in the working tree
+/*.patch
+*.orig
+*.rej

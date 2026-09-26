@@ -2138,10 +2138,18 @@ Joy_MenuInit(void)
 		s_joy_preset_slider.generic.name = "look sensitivity";
 		s_joy_preset_slider.generic.callback = JoyPresetFunc;
 		s_joy_preset_slider.cvar = "joy_sensitivity";
+#ifdef __PS3__
+		/* continuous scale, see IN_ApplyJoyPreset() in input/sdl2.c */
+		s_joy_preset_slider.minvalue = 0.5f;
+		s_joy_preset_slider.maxvalue = 8.0f;
+		s_joy_preset_slider.slidestep = 0.5f;
+		s_joy_preset_slider.printformat = "%.1f";
+#else
 		s_joy_preset_slider.minvalue = 0.0f;
 		s_joy_preset_slider.maxvalue = 8.0f;
 		s_joy_preset_slider.slidestep = 1.0f;
 		s_joy_preset_slider.printformat = "%.0f";
+#endif
 		Menu_AddItem(&s_joy_menu, (void *)&s_joy_preset_slider);
 	}
 	else // Display "custom"

@@ -1,0 +1,5 @@
+/* No texture: the vertex color (GL_TEXTURE_2D disabled). */
+void main(float4 color : COLOR0, out float4 oColor : COLOR)
+{
+    oColor = color;
+}

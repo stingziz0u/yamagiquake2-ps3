@@ -1,0 +1,17 @@
+obj-stage1/
+obj-stage2/
+obj-stage2-zaero/
+# the root .gitignore ignores *.mk (upstream's): this one is ours
+!sources.mk
+build/
+*.elf
+*.self
+*.pkg
+pkgfiles/USRDIR/VERSION.TXT
+quake2_log.txt
+hosttest/obj-stage1/
+obj-stage2/
+hosttest/q2host
+hosttest/home/
+hosttest/data/
+addons/

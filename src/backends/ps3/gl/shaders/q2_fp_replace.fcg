@@ -1,0 +1,5 @@
+/* One texture, GL_REPLACE: the texture alone. */
+void main(float2 tc0 : TEXCOORD0, uniform sampler2D tex0, out float4 oColor : COLOR)
+{
+    oColor = tex2D(tex0, tc0);
+}

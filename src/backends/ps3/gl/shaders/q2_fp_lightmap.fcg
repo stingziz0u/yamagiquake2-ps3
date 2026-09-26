@@ -1,0 +1,7 @@
+/* Two textures: TMU0 = wall texture (GL_REPLACE), TMU1 = lightmap
+   (GL_MODULATE). gl1's multitextured world. */
+void main(float2 tc0 : TEXCOORD0, float2 tc1 : TEXCOORD1,
+          uniform sampler2D tex0, uniform sampler2D tex1, out float4 oColor : COLOR)
+{
+    oColor = tex2D(tex0, tc0) * tex2D(tex1, tc1);
+}

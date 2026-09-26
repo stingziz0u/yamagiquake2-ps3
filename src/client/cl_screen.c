@@ -70,6 +70,9 @@ extern cvar_t *crosshair_color_r;
 extern cvar_t *crosshair_color_g;
 extern cvar_t *crosshair_color_b;
 extern cvar_t *cl_showspeed;
+
+/* Where the frame counter goes: 0 = top right (upstream), 1 = top left */
+static cvar_t *cl_showfps_pos;
 extern float GetPlayerSpeed(float *, float *);
 
 static void SCR_TimeRefresh_f(void);
@@ -442,6 +445,7 @@ SCR_Init(void)
 	r_hudscale = Cvar_Get("r_hudscale", "-1", CVAR_ARCHIVE);
 	r_consolescale = Cvar_Get("r_consolescale", "-1", CVAR_ARCHIVE);
 	r_menuscale = Cvar_Get("r_menuscale", "-1", CVAR_ARCHIVE);
+	cl_showfps_pos = Cvar_Get("cl_showfps_pos", "0", CVAR_ARCHIVE);
 
 	/* register our commands */
 	Cmd_AddCommand("timerefresh", SCR_TimeRefresh_f);
@@ -1552,6 +1556,18 @@ SCR_DrawSpeed(void)
 	}
 }
 
+/* x of a frame counter line 'width' pixels wide */
+static int
+SCR_FramecounterX(int width)
+{
+	if (cl_showfps_pos && cl_showfps_pos->value == 1)
+	{
+		return 0;
+	}
+
+	return viddef.width - width;
+}
+
 static void
 SCR_Framecounter(void)
 {
@@ -1593,9 +1609,10 @@ SCR_Framecounter(void)
 		}
 
 		snprintf(str, sizeof(str), "%3.2ffps", (1000.0 * 1000.0) / (avg / num));
-		DrawStringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0, str, scale);
-		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0);
-		SCR_AddDirtyPoint(viddef.width, 0);
+		int x = SCR_FramecounterX(scale * (strlen(str) * CHAR_SIZE + 2));
+		DrawStringScaled(x, 0, str, scale);
+		SCR_AddDirtyPoint(x, 0);
+		SCR_AddDirtyPoint(x + scale * (strlen(str) * CHAR_SIZE + 2), 0);
 	}
 	else if (cl_showfps->value >= 2)
 	{
@@ -1630,17 +1647,19 @@ SCR_Framecounter(void)
 
 		snprintf(str, sizeof(str), "Min: %7.2ffps, Max: %7.2ffps, Avg: %7.2ffps",
 		         (1000.0 * 1000.0) / min, (1000.0 * 1000.0) / max, (1000.0 * 1000.0) / (avg / num));
-		DrawStringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0, str, scale);
-		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0);
-		SCR_AddDirtyPoint(viddef.width, 0);
+		int x = SCR_FramecounterX(scale * (strlen(str) * CHAR_SIZE + 2));
+		DrawStringScaled(x, 0, str, scale);
+		SCR_AddDirtyPoint(x, 0);
+		SCR_AddDirtyPoint(x + scale * (strlen(str) * CHAR_SIZE + 2), 0);
 
 		if (cl_showfps->value > 2)
 		{
 			snprintf(str, sizeof(str), "Max: %5.2fms, Min: %5.2fms, Avg: %5.2fms",
 			         0.001f * min, 0.001f * max, 0.001f * ((float)avg / num));
-			DrawStringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), scale * 10, str, scale);
-			SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), scale * 10);
-			SCR_AddDirtyPoint(viddef.width, scale + 10);
+			x = SCR_FramecounterX(scale * (strlen(str) * CHAR_SIZE + 2));
+			DrawStringScaled(x, scale * 10, str, scale);
+			SCR_AddDirtyPoint(x, scale * 10);
+			SCR_AddDirtyPoint(x + scale * (strlen(str) * CHAR_SIZE + 2), scale + 10);
 		}
 	}
 }

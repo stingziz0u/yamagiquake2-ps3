@@ -29,6 +29,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "header/local.h"
 
+/* Byte order of the 32 bit palette in sw_state.currentpalette: B, G, R, A
+   (SDL's ARGB8888 on little-endian). On the PS3 the pixels go straight to
+   the RSX, which wants A8R8G8B8 as a big-endian word: A, R, G, B. */
+#ifdef __PS3__
+#define PAL_B 3
+#define PAL_G 2
+#define PAL_R 1
+#define PAL_A 0
+#else
+#define PAL_B 0
+#define PAL_G 1
+#define PAL_R 2
+#define PAL_A 3
+#endif
+
 #define NUMSTACKEDGES		2048
 #define NUMSTACKSURFACES	1024
 #define MAXALIASVERTS		2048
@@ -390,8 +405,13 @@ R_RegisterVariables (void)
 	// On MacOS texture is cleaned up after render and code have to copy a whole
 	// screen to texture, other platforms save previous texture content and can be
 	// copied only changed parts
-#if defined(__APPLE__) || defined(USE_SDL3)
+#if defined(__APPLE__) || defined(USE_SDL3) || defined(__PS3__)
+	// PS3: there is one "texture" per framebuffer (triple buffering), a
+	// partial copy would leave the other two stale. Forced off.
 	sw_partialrefresh = ri.Cvar_Get("sw_partialrefresh", "0", CVAR_ARCHIVE);
+#ifdef __PS3__
+	ri.Cvar_SetValue("sw_partialrefresh", 0);
+#endif
 #else
 	sw_partialrefresh = ri.Cvar_Get("sw_partialrefresh", "1", CVAR_ARCHIVE);
 #endif
@@ -1616,15 +1636,15 @@ R_GammaCorrectAndSetPalette( const unsigned char *palette )
 	// Replace palette
 	for ( i = 0; i < 256; i++ )
 	{
-		if (sw_state.currentpalette[i * 4 + 0] != sw_state.gammatable[palette[i * 4 + 2]] ||
-			sw_state.currentpalette[i * 4 + 1] != sw_state.gammatable[palette[i * 4 + 1]] ||
-			sw_state.currentpalette[i * 4 + 2] != sw_state.gammatable[palette[i * 4 + 0]])
+		if (sw_state.currentpalette[i * 4 + PAL_B] != sw_state.gammatable[palette[i * 4 + 2]] ||
+			sw_state.currentpalette[i * 4 + PAL_G] != sw_state.gammatable[palette[i * 4 + 1]] ||
+			sw_state.currentpalette[i * 4 + PAL_R] != sw_state.gammatable[palette[i * 4 + 0]])
 		{
-			sw_state.currentpalette[i * 4 + 0] = sw_state.gammatable[palette[i * 4 + 2]]; // blue
-			sw_state.currentpalette[i * 4 + 1] = sw_state.gammatable[palette[i * 4 + 1]]; // green
-			sw_state.currentpalette[i * 4 + 2] = sw_state.gammatable[palette[i * 4 + 0]]; // red
+			sw_state.currentpalette[i * 4 + PAL_B] = sw_state.gammatable[palette[i * 4 + 2]]; // blue
+			sw_state.currentpalette[i * 4 + PAL_G] = sw_state.gammatable[palette[i * 4 + 1]]; // green
+			sw_state.currentpalette[i * 4 + PAL_R] = sw_state.gammatable[palette[i * 4 + 0]]; // red
 
-			sw_state.currentpalette[i * 4 + 3] = 255; // alpha
+			sw_state.currentpalette[i * 4 + PAL_A] = 255; // alpha
 			palette_changed = true;
 		}
 	}
@@ -2695,9 +2715,9 @@ R_ScreenShot_f(void)
 	{
 		for (y = 0; y < vid_buffer_height; y ++) {
 			int buffer_pos = y * vid_buffer_width + x;
-			buffer[buffer_pos * 3 + 0] = palette[vid_buffer[buffer_pos] * 4 + 2]; // red
-			buffer[buffer_pos * 3 + 1] = palette[vid_buffer[buffer_pos] * 4 + 1]; // green
-			buffer[buffer_pos * 3 + 2] = palette[vid_buffer[buffer_pos] * 4 + 0]; // blue
+			buffer[buffer_pos * 3 + 0] = palette[vid_buffer[buffer_pos] * 4 + PAL_R]; // red
+			buffer[buffer_pos * 3 + 1] = palette[vid_buffer[buffer_pos] * 4 + PAL_G]; // green
+			buffer[buffer_pos * 3 + 2] = palette[vid_buffer[buffer_pos] * 4 + PAL_B]; // blue
 		}
 	}
 
