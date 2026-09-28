@@ -4,10 +4,10 @@
 # From the root of the tree:
 #
 #   make -C ps3 addons         (once: the mission packs' sources)
-#   make -C ps3                -> ps3/quake2ps3-1.0.pkg
+#   make -C ps3                -> ps3/quake2ps3-1.1.pkg
 #   make -C ps3 ZAERO=1        -> the same with Zaero linked in, for
 #                                 personal use only (see below)
-#   make -C ps3 STAGE=1        -> ps3/quake2ps3-1.0-stage1.pkg (test)
+#   make -C ps3 STAGE=1        -> ps3/quake2ps3-1.1-stage1.pkg (test)
 #   make -C ps3 clean
 #   make -C ps3 check-toolchain
 #
@@ -68,11 +68,11 @@ PKGFILES  := $(CURDIR)/pkgfiles
 ICON0     := $(CURDIR)/ICON0.PNG
 
 ifeq ($(STAGE),1)
-VERSION   := 1.0-stage1
+VERSION   := 1.1-stage1
 else ifeq ($(ZAERO),1)
-VERSION   := 1.0-zaero
+VERSION   := 1.1-zaero
 else
-VERSION   := 1.0
+VERSION   := 1.1
 endif
 OUT_PKG   := quake2ps3-$(VERSION).pkg
 

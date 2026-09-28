@@ -21,7 +21,9 @@
  *    filter, brightness and gamma (vid_ps3_*, see glimp_ps3.c; the last
  *    two are applied by the RSX, live, see ps3_video.c);
  *  - the frame rate: up to 60, or locked at 30 for an even pace
- *    (vid_ps3_fps, see ps3_video.c).
+ *    (vid_ps3_fps, see ps3_video.c);
+ *  - model shadows (OpenGL only): r_shadows, and gl1_stencilshadow so
+ *    each spot is darkened once, without the darker overlaps.
  *
  * =======================================================================
  */
@@ -41,6 +43,7 @@ static menuslider_s s_brightness_slider;
 static menuslider_s s_gamma_slider;
 static menulist_s s_fpsdisplay_list;
 static menuslider_s s_fov_slider;
+static menulist_s s_shadows_list;
 static menuslider_s s_screenfit_slider;
 static menulist_s s_filter_list;
 static menulist_s s_fps_list;
@@ -142,6 +145,26 @@ FpsDisplayFunc(void *unused)
 	}
 }
 
+/* 0 off, 1 r_shadows alone, 2 r_shadows + gl1_stencilshadow. Only the
+   OpenGL renderer draws them; applied right away. */
+static void
+ShadowsFunc(void *unused)
+{
+	Cvar_SetValue("r_shadows", s_shadows_list.curvalue > 0);
+	Cvar_SetValue("gl1_stencilshadow", s_shadows_list.curvalue == 2);
+}
+
+static int
+CurrentShadows(void)
+{
+	if (Cvar_VariableValue("r_shadows") == 0)
+	{
+		return 0;
+	}
+
+	return Cvar_VariableValue("gl1_stencilshadow") ? 2 : 1;
+}
+
 static void
 ApplyChanges(void *unused)
 {
@@ -213,6 +236,8 @@ ResetDefaults(void *unused)
 	s_fpsdisplay_list.curvalue = 0;
 	FpsDisplayFunc(NULL);
 	Cvar_SetValue("fov", 90);
+	s_shadows_list.curvalue = 0;
+	ShadowsFunc(NULL);
 	Cvar_SetValue("vid_ps3_screenfit", 90);
 	s_filter_list.curvalue = 0;
 	s_fps_list.curvalue = 0;
@@ -230,6 +255,13 @@ VID_MenuInit(void)
 	static const char *renderer_names[] = {
 		"opengl (gpu)",
 		"software (cpu)",
+		NULL
+	};
+
+	static const char *shadows_names[] = {
+		"off",
+		"on",
+		"on (stencil)",
 		NULL
 	};
 
@@ -317,6 +349,14 @@ VID_MenuInit(void)
 	s_fov_slider.slidestep = 1;
 	s_fov_slider.printformat = "%.0f";
 
+	s_shadows_list.generic.type = MTYPE_SPINCONTROL;
+	s_shadows_list.generic.name = "shadows";
+	s_shadows_list.generic.x = 0;
+	s_shadows_list.generic.y = (y += 10);
+	s_shadows_list.generic.callback = ShadowsFunc;
+	s_shadows_list.itemnames = shadows_names;
+	s_shadows_list.curvalue = CurrentShadows();
+
 	s_screenfit_slider.generic.type = MTYPE_SLIDER;
 	s_screenfit_slider.generic.name = "tv screen fit";
 	s_screenfit_slider.generic.x = 0;
@@ -376,6 +416,7 @@ VID_MenuInit(void)
 	Menu_AddItem(&s_video_menu, (void *)&s_brightness_slider);
 	Menu_AddItem(&s_video_menu, (void *)&s_gamma_slider);
 	Menu_AddItem(&s_video_menu, (void *)&s_fov_slider);
+	Menu_AddItem(&s_video_menu, (void *)&s_shadows_list);
 	Menu_AddItem(&s_video_menu, (void *)&s_screenfit_slider);
 	Menu_AddItem(&s_video_menu, (void *)&s_filter_list);
 	Menu_AddItem(&s_video_menu, (void *)&s_fps_list);

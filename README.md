@@ -35,8 +35,9 @@ everything that isn't PS3 specific:
   the TV by the RSX: 4:3 (320x240, 400x300, 512x384, 640x480) and 16:9
   (640x360, 768x432, 848x480, 960x540, 1280x720). TV screen fit (overscan),
   smooth or sharp scaling, brightness and gamma applied live by the GPU,
-  frame rate up to 60 or locked at 30, HUD scale, and an optional FPS
-  counter (top left or top right).
+  frame rate up to 60 or locked at 30, HUD scale, an optional FPS
+  counter (top left or top right), and model shadows (OpenGL only: off,
+  on, or on with the stencil for clean overlaps).
 - **Audio**: 48 kHz hardware audio on its own thread, OGG music (the GOG
   soundtrack files, see [Installation](#installation)) and the original
   cinematics with sound.
@@ -66,7 +67,7 @@ everything that isn't PS3 specific:
 
 ## Installation
 
-1. Install `quake2ps3-1.0.pkg` from the XMB (shows up as "Quake II").
+1. Install `quake2ps3-1.1.pkg` from the XMB (shows up as "Quake II").
    This creates `/dev_hdd0/game/QUAKE2PS3/USRDIR/` with every folder below
    already in place, empty and ready to fill.
 2. By FTP, copy your game data there:
@@ -131,7 +132,7 @@ previous boot's is kept as `quake2_log.old.txt`; each is capped at 512 KB).
    cd yamagiquake2-ps3
    make -C ps3 check-toolchain   # optional: checks the toolchain is usable
    make -C ps3 addons            # once: fetches the mission packs' game code
-   make -C ps3 -j4               # -> ps3/quake2ps3-1.0.pkg
+   make -C ps3 -j4               # -> ps3/quake2ps3-1.1.pkg
    ```
 
 `make -C ps3 addons` clones Yamagi's [xatrix](https://github.com/yquake2/xatrix)
@@ -158,7 +159,7 @@ it into your own copy:
 
 ```bash
 make -C ps3 addons ZAERO=1
-make -C ps3 -j4 ZAERO=1          # -> ps3/quake2ps3-1.0-zaero.pkg
+make -C ps3 -j4 ZAERO=1          # -> ps3/quake2ps3-1.1-zaero.pkg
 ```
 
 Then put Zaero's `.pak` files in `USRDIR/mods/zaero/` and its cinematics in
