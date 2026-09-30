@@ -1268,7 +1268,13 @@ char *controller_bindnames[][2] =
 	{"invprev", "prev item"},
 	{"invnext", "next item"},
 	{"cmd help", "help computer"},
+#ifdef __PS3__
+	/* the DS3 has no gyro here; lock-on in its place (cl_input.c,
+	   unbound by default) */
+	{"+lockon", "lock on"},
+#else
 	{"+gyroaction", "gyro off / on"},
+#endif
 	{"+joyaltselector", "alt buttons modifier"}
 };
 

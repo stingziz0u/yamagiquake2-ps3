@@ -55,6 +55,7 @@
 #ifndef DEDICATED_ONLY
 #include "ps3_video.h"
 #include "ps3_pad.h"
+#include "ps3_input.h"
 #endif
 
 /* frame.c: set by signal handlers on unix, by the XMB "Quit Game" here. */
@@ -294,6 +295,7 @@ ShowErrorScreen(const char *error)
 static void
 ShutdownPlatform(void)
 {
+	PS3_OSK_Shutdown();
 	PS3_Video_Shutdown();
 }
 #endif

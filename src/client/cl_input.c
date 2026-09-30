@@ -27,6 +27,9 @@
 
 #include "header/client.h"
 #include "input/header/input.h"
+#ifdef __PS3__
+#include "../backends/ps3/ps3_input.h"
+#endif
 
 static cvar_t *cl_nodelta;
 static cvar_t *cl_centertime;
@@ -569,6 +572,59 @@ IN_ForceCenterView(void)
 	cl.viewangles[PITCH] = 0;
 }
 
+#ifdef __PS3__
+/*
+ * Lock-on (+lockon): while held, the view turns toward the visible enemy
+ * closest to the crosshair and follows it. The search and the turn are in
+ * src/backends/ps3/ps3_lockon.c (it reads the local server's edicts).
+ * Unbound by default: Customize Buttons -> "lock on".
+ */
+static qboolean in_lockon;
+
+static void
+IN_LockOnDown(void)
+{
+	in_lockon = true;
+}
+
+static void
+IN_LockOnUp(void)
+{
+	in_lockon = false;
+}
+
+static void
+CL_LockOn(void)
+{
+	vec3_t eye, view;
+	float turn_yaw, turn_pitch;
+	int i;
+
+	if (!in_lockon || cls.state != ca_active || cls.key_dest != key_game ||
+		cl_paused->value || cl.attractloop || cl.cinematictime > 0 ||
+		cl.frame.playerstate.pmove.pm_type != PM_NORMAL ||
+		cl.frame.playerstate.stats[STAT_HEALTH] <= 0)
+	{
+		PS3_LockOn_Reset();
+		return;
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		eye[i] = cl.predicted_origin[i] + cl.frame.playerstate.viewoffset[i];
+		view[i] = cl.viewangles[i] +
+			SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[i]);
+	}
+
+	if (PS3_LockOn_Aim(cl.playernum, eye, view, frame_msec * 0.001f,
+				&turn_yaw, &turn_pitch))
+	{
+		cl.viewangles[YAW] += turn_yaw;
+		cl.viewangles[PITCH] += turn_pitch;
+	}
+}
+#endif
+
 void
 CL_InitInput(void)
 {
@@ -606,6 +662,10 @@ CL_InitInput(void)
 	Cmd_AddCommand("impulse", IN_Impulse);
 	Cmd_AddCommand("+klook", IN_KLookDown);
 	Cmd_AddCommand("-klook", IN_KLookUp);
+#ifdef __PS3__
+	Cmd_AddCommand("+lockon", IN_LockOnDown);
+	Cmd_AddCommand("-lockon", IN_LockOnUp);
+#endif
 
 	cl_nodelta = Cvar_Get("cl_nodelta", "0", 0);
 	cl_centertime = Cvar_Get("cl_centertime", "180", CVAR_ARCHIVE);
@@ -636,6 +696,9 @@ CL_RefreshCmd(void)
 	// Add movement
 	CL_BaseMove(cmd);
 	IN_Move(cmd);
+#ifdef __PS3__
+	CL_LockOn();
+#endif
 
 	// Clamp angels for prediction
 	CL_ClampPitch();
@@ -688,6 +751,9 @@ CL_RefreshMove(void)
 	// Add movement
 	CL_BaseMove(cmd);
 	IN_Move(cmd);
+#ifdef __PS3__
+	CL_LockOn();
+#endif
 
 	old_sys_frame_time = sys_frame_time;
 }

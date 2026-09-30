@@ -35,6 +35,7 @@
 #include "ps3_platform.h"
 #include "ps3_video.h"
 #include "ps3_pad.h"
+#include "ps3_input.h"
 
 static Uint32 inited;
 static const char *last_error = "";
@@ -469,6 +470,10 @@ PollController(void)
 		prev_buttons = st.buttons;
 		return;
 	}
+
+	/* SELECT + TRIANGLE (console), the console's own pad controls and the
+	   XMB keyboard take what they use first (ps3_console.c) */
+	st.buttons = PS3_ConsolePad_Filter(st.buttons);
 
 	changed = st.buttons ^ prev_buttons;
 

@@ -24,6 +24,8 @@ PS3_CLIENT_SRCS := \
 	src/backends/ps3/sdl_ps3.c \
 	src/backends/ps3/ps3_video.c \
 	src/backends/ps3/ps3_pad.c \
+	src/backends/ps3/ps3_console.c \
+	src/backends/ps3/ps3_lockon.c \
 	src/backends/ps3/gl/ps3gl_main.c \
 	src/backends/ps3/gl/ps3gl_state.c \
 	src/backends/ps3/gl/ps3gl_texture.c \

@@ -68,11 +68,11 @@ PKGFILES  := $(CURDIR)/pkgfiles
 ICON0     := $(CURDIR)/ICON0.PNG
 
 ifeq ($(STAGE),1)
-VERSION   := 1.1-stage1
+VERSION   := 1.2-stage1
 else ifeq ($(ZAERO),1)
-VERSION   := 1.1-zaero
+VERSION   := 1.2-zaero
 else
-VERSION   := 1.1
+VERSION   := 1.2
 endif
 OUT_PKG   := quake2ps3-$(VERSION).pkg
 

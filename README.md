@@ -44,7 +44,9 @@ everything that isn't PS3 specific:
 - **Input**: DualShock 3, with every button rebindable from the in-game
   menus. Look sensitivity goes from 0.5 to 8 in 0.5 steps, plus Yamagi's
   advanced stick settings (yaw/pitch speed, ramp time, invert pitch,
-  sticks layout).
+  sticks layout), and an optional **lock-on** (unbound by default).
+- **Console**: Select + Triangle opens it from anywhere, and the PS3's own
+  on-screen keyboard types the commands.
 - **Mission packs**: *The Reckoning* and *Ground Zero* are linked into the
   same executable. Drop in their data and pick them from the menu. Save and
   load work in both.
@@ -67,7 +69,7 @@ everything that isn't PS3 specific:
 
 ## Installation
 
-1. Install `quake2ps3-1.1.pkg` from the XMB (shows up as "Quake II").
+1. Install `quake2ps3-1.2.pkg` from the XMB (shows up as "Quake II").
    This creates `/dev_hdd0/game/QUAKE2PS3/USRDIR/` with every folder below
    already in place, empty and ready to fill.
 2. By FTP, copy your game data there:
@@ -132,7 +134,7 @@ previous boot's is kept as `quake2_log.old.txt`; each is capped at 512 KB).
    cd yamagiquake2-ps3
    make -C ps3 check-toolchain   # optional: checks the toolchain is usable
    make -C ps3 addons            # once: fetches the mission packs' game code
-   make -C ps3 -j4               # -> ps3/quake2ps3-1.1.pkg
+   make -C ps3 -j4               # -> ps3/quake2ps3-1.2.pkg
    ```
 
 `make -C ps3 addons` clones Yamagi's [xatrix](https://github.com/yquake2/xatrix)
@@ -159,7 +161,7 @@ it into your own copy:
 
 ```bash
 make -C ps3 addons ZAERO=1
-make -C ps3 -j4 ZAERO=1          # -> ps3/quake2ps3-1.1-zaero.pkg
+make -C ps3 -j4 ZAERO=1          # -> ps3/quake2ps3-1.2-zaero.pkg
 ```
 
 Then put Zaero's `.pak` files in `USRDIR/mods/zaero/` and its cinematics in
@@ -183,12 +185,27 @@ Then put Zaero's `.pak` files in `USRDIR/mods/zaero/` and its cinematics in
 | Inventory | Triangle | |
 | Center view | R3 | |
 | Help computer | Select | |
+| Lock on | *(unbound)* | Bind it in customize buttons ("lock on"). While held, the view turns toward the visible enemy closest to the crosshair and follows it; the sticks still work |
+| Console | Select + Triangle | Opens / closes it, in game or in the menus |
 | Menu | Start | Fixed, not rebindable |
 | Confirm / Back (menus) | Cross / Circle | |
 
-Everything except Start is rebindable from **Options -> customize gamepad
--> customize buttons**, where the stick settings and look sensitivity are
-too.
+Everything except Start and the console is rebindable from **Options ->
+customize gamepad -> customize buttons**, where the stick settings and look
+sensitivity are too. Select is also the console modifier: on its own it
+reaches the game when released, or after a quarter of a second while held,
+so Select + Triangle never triggers either button.
+
+With the console open:
+
+| Action | Button |
+|---|---|
+| Type a command (PS3 on-screen keyboard, runs it when accepted) | Cross |
+| Run the current line | Triangle |
+| Complete the command (Tab) | Square |
+| Command history / erase a character | D-pad up, down / left |
+| Scroll the console | L1 / R1 |
+| Close the console | Circle (or Select + Triangle) |
 
 ## Known limitations
 
@@ -211,8 +228,9 @@ too.
   - `.dll`/`.so` files in a mod folder are ignored.
 - **Single player only.** Networking is loopback only: no LAN or online
   play, no server browser. Capture The Flag isn't included.
-- **DualShock 3 only.** No USB keyboard or mouse (so no console), no
-  motion (gyro) aiming, and no rumble.
+- **DualShock 3 only.** No USB keyboard or mouse (the console is typed
+  with the PS3's on-screen keyboard), no motion (gyro) aiming, and no
+  rumble.
 - **Screenshots** (`screenshot` command) come out black with the OpenGL
   renderer: reading the RSX's memory back isn't implemented.
 - The 2023 re-release's data isn't supported, only the original game's.
