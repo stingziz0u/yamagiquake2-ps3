@@ -260,9 +260,13 @@ $(OBJDIR)/ref_gl1.o: $(REFGL1_OBJS)
 	@$(OBJCOPY) --redefine-sym GetRefAPI=GetRefAPI_gl1 $(OBJDIR)/refgl1_all.o $(OBJDIR)/refgl1_renamed.o
 	@$(OBJCOPY) --keep-global-symbol=GetRefAPI_gl1 $(OBJDIR)/refgl1_renamed.o $@
 
+# malloc & co. wrapped: blocks of 256 KB or more come from lv2 pages
+# (src/backends/ps3/bigalloc.c), so newlib's heap does not fill with holes.
+WRAP_ALLOC := -Wl,--wrap=malloc,--wrap=calloc,--wrap=realloc,--wrap=free
+
 $(TARGET).elf: $(ENGINE_OBJS) $(GAME_O) $(ADDON_O) $(REF_O)
 	@echo "LD  $@"
-	@$(LD) $(ENGINE_OBJS) $(GAME_O) $(ADDON_O) $(REF_O) $(LIBPSL1GHT_LIB) -o $@ $(foreach lib,$(LIBS),-l$(lib))
+	@$(LD) $(ENGINE_OBJS) $(GAME_O) $(ADDON_O) $(REF_O) $(LIBPSL1GHT_LIB) $(WRAP_ALLOC) -o $@ $(foreach lib,$(LIBS),-l$(lib))
 
 -include $(ENGINE_OBJS:.o=.d) $(GAME_OBJS:.o=.d) $(REF_OBJS:.o=.d) $(REFGL1_OBJS:.o=.d)
 -include $(XATRIX_OBJS:.o=.d) $(ROGUE_OBJS:.o=.d) $(ZAERO_OBJS:.o=.d)

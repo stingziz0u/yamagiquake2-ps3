@@ -54,6 +54,8 @@ static size_t maxhunksize;
 static size_t curhunksize;
 
 #ifdef __PPU__
+void PS3_BigAllocStats(unsigned *count, size_t *bytes);   /* bigalloc.c */
+
 typedef struct
 {
 	u32 total;
@@ -75,14 +77,18 @@ LogMemory(const char *what, size_t size)
 #ifdef __PPU__
 	struct mallinfo mi = mallinfo();
 	ps3_meminfo_t info;
+	unsigned bigs;
+	size_t bigbytes;
 
 	memset(&info, 0, sizeof(info));
 	GetUserMemory(&info);
+	PS3_BigAllocStats(&bigs, &bigbytes);
 	PS3_Log("[mem] %s %u KB: lv2 free %u KB of %u KB; heap %u KB, "
-		"%u KB in use, %u KB free in it",
+		"%u KB in use, %u KB free in it; %u big blocks, %u KB",
 		what, (unsigned)(size / 1024), info.available / 1024,
 		info.total / 1024, (unsigned)mi.arena / 1024,
-		(unsigned)mi.uordblks / 1024, (unsigned)mi.fordblks / 1024);
+		(unsigned)mi.uordblks / 1024, (unsigned)mi.fordblks / 1024,
+		bigs, (unsigned)(bigbytes / 1024));
 #else
 	PS3_Log("[mem] %s %u KB", what, (unsigned)(size / 1024));
 #endif

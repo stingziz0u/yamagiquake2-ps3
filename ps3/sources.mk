@@ -11,6 +11,7 @@ PS3_SRCS := \
 	src/backends/ps3/main.c \
 	src/backends/ps3/system.c \
 	src/backends/ps3/hunk.c \
+	src/backends/ps3/bigalloc.c \
 	src/backends/ps3/network.c \
 	src/backends/ps3/ps3_log.c
 
